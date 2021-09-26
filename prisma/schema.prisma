@@ -1,0 +1,931 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
+
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Boat {
+  id                Int                @id @default(autoincrement())
+  dealershipId      Int?
+  hin               String
+  model             String?
+  modelYear         String?
+  engineModel       String?
+  gelDate           DateTime?
+  deliveryDate      DateTime?
+  deliveryEntryDate DateTime?
+  modifiedOn        DateTime           @default(now())
+  createdOn         DateTime           @default(now())
+  name              String?
+  dealership        Dealership?        @relation(fields: [dealershipId], references: [id])
+  alarmLog          AlarmLog[]
+  boatAdmins        BoatAdmin[]
+  boatGuests        BoatGuest[]
+  boatOwner         BoatOwner?
+  ignitionOffLog    IgnitionOffLog[]
+  ignitionOnLog     IgnitionOnLog[]
+  log               Log[]
+  provisionedDevice ProvisionedDevice?
+  sleepLog          SleepLog[]
+
+  @@index([dealershipId], name: "IX_Boat_dealershipId")
+}
+
+model Dealership {
+  id         Int      @id @default(autoincrement())
+  code       Int?
+  dealerName String?
+  brand      String?
+  region     String?
+  address    String?
+  city       String?
+  state      String?
+  postalCode String?
+  country    String?
+  phone      String?
+  name       String?
+  email      String?
+  websiteUrl String?
+  modifiedOn DateTime @default(now())
+  createdOn  DateTime @default(now())
+  boats      Boat[]
+  dealers    Dealer[]
+}
+
+model Device {
+  id                Int                @id @default(autoincrement())
+  serial            String?            @unique
+  sim               String?
+  region            String?
+  modifiedOn        DateTime           @default(now())
+  createdOn         DateTime           @default(now())
+  isDisabled        Boolean            @default(false)
+  profile           String?
+  provider          String?
+  unitDescription   String?
+  partNumber        String?
+  provisionedDate   DateTime?
+  gsm               String?
+  who               String?
+  shippedDate       DateTime?
+  invoiceNumber     Int?
+  alarmLog          AlarmLog[]
+  deviceTelemetry   DeviceTelemetry?
+  ignitionOffLog    IgnitionOffLog[]
+  ignitionOnLog     IgnitionOnLog[]
+  log               Log[]
+  provisionedDevice ProvisionedDevice?
+  sleepLog          SleepLog[]
+}
+
+model Role {
+  id        Int        @id
+  name      String     @unique
+  createdOn DateTime   @default(now())
+  userRoles UserRole[]
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String?    @unique
+  name         String?
+  phone        String?
+  address      String?
+  country      String?
+  city         String?
+  state        String?
+  isRegistered Boolean    @default(false)
+  postalCode   String?
+  modifiedOn   DateTime   @default(now())
+  createdOn    DateTime   @default(now())
+  uid          String     @unique @default(uuid())
+  admin        Admin?
+  dealer       Dealer?
+  guest        Guest?
+  owner        Owner?
+  userRoles    UserRole[]
+  userToken    UserToken?
+}
+
+model UserRole {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  roleId     Int
+  modifiedOn DateTime @default(now())
+  createdOn  DateTime @default(now())
+  role       Role     @relation(fields: [roleId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, roleId], name: "Ak_UserRole_userId_roleId")
+}
+
+model UserToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int      @unique
+  createdOn DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id])
+}
+
+model Admin {
+  id         Int         @id @default(autoincrement())
+  userId     Int         @unique
+  createdOn  DateTime    @default(now())
+  user       User        @relation(fields: [userId], references: [id])
+  boatAdmins BoatAdmin[]
+}
+
+model Dealer {
+  id           Int        @id @default(autoincrement())
+  userId       Int        @unique
+  dealershipId Int
+  createdOn    DateTime   @default(now())
+  dealership   Dealership @relation(fields: [dealershipId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
+
+  @@index([dealershipId], name: "IX_Dealer_dealershipId")
+}
+
+model Guest {
+  id         Int         @id @default(autoincrement())
+  userId     Int         @unique
+  createdOn  DateTime    @default(now())
+  user       User        @relation(fields: [userId], references: [id])
+  boatGuests BoatGuest[]
+}
+
+model Owner {
+  id        Int         @id @default(autoincrement())
+  userId    Int         @unique
+  createdOn DateTime    @default(now())
+  User      User        @relation(fields: [userId], references: [id])
+  BoatOwner BoatOwner[]
+}
+
+model BoatAdmin {
+  id        Int      @id @default(autoincrement())
+  adminId   Int
+  boatId    Int
+  createdOn DateTime @default(now())
+  admin     Admin    @relation(fields: [adminId], references: [id])
+  boat      Boat     @relation(fields: [boatId], references: [id])
+
+  @@unique([adminId, boatId], name: "AK_BoatAdmin_adminId_boatId")
+}
+
+model BoatGuest {
+  id        Int      @id @default(autoincrement())
+  boatId    Int
+  guestId   Int
+  createdOn DateTime @default(now())
+  boat      Boat     @relation(fields: [boatId], references: [id])
+  guest     Guest    @relation(fields: [guestId], references: [id])
+
+  @@unique([guestId, boatId], name: "AK_BoatGuest_guestId_boatId")
+}
+
+model BoatOwner {
+  id        Int      @id @default(autoincrement())
+  boatId    Int      @unique
+  ownerId   Int
+  createdOn DateTime @default(now())
+  boat      Boat     @relation(fields: [boatId], references: [id])
+  owner     Owner    @relation(fields: [ownerId], references: [id])
+}
+
+model DeviceTelemetry {
+  id                                                   Int       @id @default(autoincrement())
+  deviceId                                             Int       @unique
+  accelX                                               Float?
+  accelXyzMagnitude                                    Float?
+  accelY                                               Float?
+  accelZ                                               Float?
+  analogInput1                                         Float?
+  analogInput2                                         Float?
+  analogInput3                                         Float?
+  analogInput4                                         Float?
+  digitalInput1                                        Int?
+  digitalInput2                                        Int?
+  digitalInput3                                        Int?
+  digitalInput4                                        Int?
+  digitalOutput1                                       Int?
+  digitalOutput2                                       Int?
+  gpsAltitudeFt                                        Int?
+  gpsAltitudeM                                         Int?
+  gpsCourse                                            Float?
+  gpsDate                                              Float?
+  gpsLatitude                                          Float?
+  gpsLongitude                                         Float?
+  gpsMode                                              Int?
+  gpsModeStr                                           String?
+  gpsNumSatellites                                     Int?
+  gpsSpeedKmh                                          Float?
+  gpsSpeedMph                                          Float?
+  gpsTime                                              Int?
+  gpsUtc                                               BigInt?
+  gpsUtcDays                                           Int?
+  gpsUtcSec                                            Int?
+  gpsUtcStr                                            String?
+  gpsWarn                                              String?
+  gsmAccessTechnology                                  String?
+  gsmConnected                                         Int?
+  gsmRegStatus                                         String?
+  gsmSignalQualityBars                                 Int?
+  gsmSignalQualityDBm                                  Int?
+  gsmSignalQualityStr                                  String?
+  gsmSimStatus                                         String?
+  input1DutyCycle                                      Int?
+  input1Frequency                                      Float?
+  sysSerial                                            Int?
+  sysType                                              String?
+  sysVariant                                           Int?
+  tempC                                                Float?
+  tempF                                                Float?
+  acceleratorPedalPosition1                            Float?
+  actualEnginePercentTorque                            Int?
+  actualEnginePercentTorqueHighResolution              Float?
+  altitude                                             Float?
+  amberWarningLamp                                     Int?
+  ambientAirTemperature                                Float?
+  barometricAbsolutePressure                           Float?
+  barometricPressure                                   Float?
+  batteryPotentialPowerInput                           Float?
+  brakeSwitch                                          Int?
+  calculatedAmbientAirTemperature                      Float?
+  clutchSwitch                                         Int?
+  compassBearing                                       Float?
+  cruiseControlActive                                  Int?
+  cruiseControlEnableSwitch                            Int?
+  cruiseControlPauseSwitch                             Int?
+  day                                                  Float?
+  disengageDrivelineRequest                            Int?
+  drivelineRetarderOverheatIndicator                   Int?
+  ecuSerialNumber                                      Int?
+  engineActualIgnitionTiming                           Float?
+  engineAirFilter1DifferentialPressure                 Float?
+  engineAirFilterRestrictionLampData                   Int?
+  engineAirIntakePressure                              Int?
+  engineAirIntakeTemperature                           Int?
+  engineAmberWarningLampData                           Int?
+  engineCoolantFilterDifferentialPressure              Float?
+  engineCoolantLevel                                   Float?
+  engineCoolantLevelLowLampData                        Int?
+  engineCoolantTemperature                             Int?
+  engineCoolantTemperatureHighLampData                 Int?
+  engineDieselParticulateFilterIntakePressure          Float?
+  engineExhaustGasOxygenSensorClosedLoopOperationBank1 Int?
+  engineExhaustGasOxygenSensorClosedLoopOperationBank2 Int?
+  engineExhaustGasTemperature                          Float?
+  engineFuelDeliveryPressure                           Int?
+  engineFuelFilterDegradation                          Int?
+  engineFuelFilterRestrictedLampData                   Int?
+  engineFuelRate                                       Float?
+  engineIntakeManifold1Pressure                        Int?
+  engineIntakeManifold1Temperature                     Int?
+  engineOilLevel                                       Float?
+  engineOilPressure                                    Float?
+  engineOilPressureLowLampData                         Int?
+  engineOilTemperature1                                Float?
+  engineOverrideControlMode                            Int?
+  enginePercentLoadAtCurrentSpeed                      Int?
+  engineProtectLampData                                Int?
+  engineRedStopLampData                                Int?
+  engineRequestedSpeedSpeedLimit                       Float?
+  engineRequestedSpeedControlConditions                Int?
+  engineRequestedTorqueHighResolution                  Float?
+  engineRequestedTorqueTorqueLimit                     Int?
+  engineSpeed                                          Float?
+  engineThrottleValve1Position                         Float?
+  engineTotalFuelUsed                                  Float?
+  engineTotalHoursOfOperation                          Float?
+  engineTotalRevolutions                               Int?
+  engineTripFuel                                       Float?
+  engineTurbochargerOilTemperature                     Float?
+  externalAccelerationDemand                           Int?
+  flashRedStopLamp                                     Int?
+  failureModeIdentifier                                Int?
+  flashAmberWarningLamp                                Int?
+  flashMalfunctionIndicatorLamp                        Int?
+  flashProtectLamp                                     Int?
+  fuelLevel1                                           Float?
+  highResolutionEngineFuelRate                         Float?
+  hours                                                Int?
+  hydraulicRetarderOilTemperature                      Int?
+  hydraulicRetarderPressure                            Int?
+  hydraulicTemperature                                 Int?
+  keyswitchBatteryPotential                            Float?
+  latitude                                             Float?
+  localHourOffset                                      Int?
+  localMinuteOffset                                    Int?
+  longTermFuelTrimBank1                                Float?
+  longTermFuelTrimBank2                                Float?
+  longitude                                            Float?
+  malfunctionIndicatorLamp                             Int?
+  minutes                                              Int?
+  month                                                Int?
+  nameOfWorkingSetMember                               Int?
+  navigationBasedVehicleSpeed                          Float?
+  networkServiceStatus1                                Int?
+  numberOfMembersInWorkingSet                          Int?
+  occurrenceCount                                      Int?
+  overrideControlModePriority                          Int?
+  parkBrakeReleaseInhibitRequest                       Int?
+  parkingBrakeSwitch                                   Int?
+  pitch                                                Float?
+  powerTakeoffOilTemperature                           Int?
+  powerTakeoffSpeed                                    Float?
+  protectLamp                                          Int?
+  redStopLamp                                          Int?
+  relativeHumidity                                     Float?
+  requestedPercentClutchSlip                           Float?
+  spnConversionMethod                                  Int?
+  seconds                                              Float?
+  serviceDelayCalendarTimeBased                        Int?
+  serviceDelayOperationalTimeBased                     Int?
+  serviceDistance                                      Int?
+  shortTermFuelTrimBank1                               Float?
+  shortTermFuelTrimBank2                               Float?
+  specificHumidity                                     Float?
+  suspectParameterNumber                               Int?
+  tsc1ControlPurpose                                   Int?
+  tsc1TransmissionRate                                 Int?
+  timeSinceLastService                                 Int?
+  totalEcuRunTime                                      Float?
+  totalPowerTakeoffHours                               Float?
+  transmissionCurrentGear                              Int?
+  transmissionCurrentRange                             Int?
+  transmissionGearShiftInhibitRequest                  Int?
+  transmissionOilTemperature                           Float?
+  transmissionOutputShaftSpeed                         Float?
+  transmissionReverseGearShiftInhibitRequest           Int?
+  transmissionTorqueConverterLockupDisableRequest      Int?
+  transmissionTorqueConverterLockupEngaged             Int?
+  transmissionTorqueConverterLockupinProcess           Int?
+  tripNumberOfHotShutdowns                             Int?
+  twoSpeedAxleSwitch                                   Int?
+  valveAssemblyLoadSensePressure                       Int?
+  valveAssemblySupplyPressure                          Int?
+  valveLoadSensePressure                               Int?
+  valvePilotPressure                                   Int?
+  vehicleBatteryVoltageLowLampData                     Int?
+  vehicleFuelLevelLowLampData                          Int?
+  vehicleIdentificationNumber                          Int?
+  waterInFuelIndicator                                 Int?
+  wheelBasedVehicleSpeed                               Float?
+  wirelessSignalStrength1                              Float?
+  xbrControlMode                                       Int?
+  xbrPriority                                          Int?
+  xbrEbiMode                                           Int?
+  year                                                 Int?
+  gpsLastModifiedOn                                    DateTime? @default(now())
+  modifiedOn                                           DateTime? @default(now())
+  createdOn                                            DateTime? @default(now())
+  isWebSocketConnected                                 Boolean   @default(false)
+  isSleeping                                           Boolean   @default(false)
+  lastSensorUpdate                                     String?
+  ts                                                   String?
+  device                                               Device    @relation(fields: [deviceId], references: [id])
+}
+
+model ProvisionedDevice {
+  id        Int      @id @default(autoincrement())
+  boatId    Int      @unique
+  deviceId  Int      @unique
+  createdOn DateTime @default(now())
+  boat      Boat     @relation(fields: [boatId], references: [id])
+  device    Device   @relation(fields: [deviceId], references: [id])
+}
+
+model DealersCircleComponent {
+  id                                    Int       @id @default(autoincrement())
+  companyId                             Int?
+  supplierManufacturerPartId            Int?
+  supplierManufacturerPartNumber        String?
+  componentUnqiueIdentifier             String?
+  oemUniqueIdentified                   String?
+  oemMake                               String?
+  oemModelYear                          Int?
+  oemModelName                          String?
+  deliveredDate                         DateTime?
+  deliveryEntryDate                     DateTime?
+  dealerName                            String?
+  salesPersonEmail                      String?
+  recievedOwnersManual                  Boolean?
+  understandResponsiblilityOwnersManual Boolean?
+  recievedWarrantyStatementAndAgree     Boolean?
+  agreeToPrivacyPolicy                  Boolean?
+  consentToDataCollection               Boolean?
+  customerId                            Int?
+  firstName                             String?
+  lastName                              String?
+  address1                              String?
+  address2                              String?
+  city                                  String?
+  state                                 String?
+  stateCode                             String?
+  postalCode                            String?
+  country                               String?
+  countryCode                           String?
+  homePhone                             String?
+  mobilePhone                           String?
+  email                                 String?
+  individualOrCompany                   Boolean?
+}
+
+model AlarmLog {
+  id          Int       @id @default(autoincrement())
+  boatId      Int
+  deviceId    Int
+  logId       Int
+  description String?
+  bus         Int?
+  node        String?
+  spn         Int?
+  fmi         String?
+  createdOn   DateTime? @default(now())
+  boat        Boat      @relation(fields: [boatId], references: [id])
+  device      Device    @relation(fields: [deviceId], references: [id])
+  log         Log       @relation(fields: [logId], references: [id])
+
+  @@index([boatId], name: "IX_AlarmLogs_BoatId")
+  @@index([deviceId], name: "IX_AlarmLogs_DeviceId")
+  @@index([logId], name: "IX_AlarmLogs_LogId")
+}
+
+model IgnitionOffLog {
+  id                                                   Int       @id @default(autoincrement())
+  boatId                                               Int
+  deviceId                                             Int
+  logId                                                Int
+  accelX                                               Float?
+  accelXyzMagnitude                                    Float?
+  accelY                                               Float?
+  accelZ                                               Float?
+  analogInput1                                         Float?
+  analogInput2                                         Float?
+  analogInput3                                         Float?
+  analogInput4                                         Float?
+  digitalInput1                                        Int?
+  digitalInput2                                        Int?
+  digitalInput3                                        Int?
+  digitalInput4                                        Int?
+  digitalOutput1                                       Int?
+  digitalOutput2                                       Int?
+  gpsAltitudeFt                                        Int?
+  gpsAltitudeM                                         Int?
+  gpsCourse                                            Float?
+  gpsDate                                              Float?
+  gpsLatitude                                          Float?
+  gpsLongitude                                         Float?
+  gpsMode                                              Int?
+  gpsModeStr                                           String?
+  gpsNumSatellites                                     Int?
+  gpsSpeedKmh                                          Float?
+  gpsSpeedMph                                          Float?
+  gpsTime                                              Int?
+  gpsUtc                                               BigInt?
+  gpsUtcDays                                           Int?
+  gpsUtcSec                                            Int?
+  gpsUtcStr                                            String?
+  gpsWarn                                              String?
+  gsmAccessTechnology                                  String?
+  gsmConnected                                         Int?
+  gsmRegStatus                                         String?
+  gsmSignalQualityBars                                 Int?
+  gSMSignalQualityDbm                                  Int?
+  gsmSignalQualityStr                                  String?
+  gsmSimStatus                                         String?
+  input1DutyCycle                                      Int?
+  input1Frequency                                      Float?
+  sysSerial                                            Int?
+  sysType                                              String?
+  sysVariant                                           Int?
+  tempC                                                Float?
+  tempF                                                Float?
+  acceleratorPedalPosition1                            Float?
+  actualEnginePercentTorque                            Int?
+  actualEnginePercentTorqueHighResolution              Float?
+  altitude                                             Float?
+  amberWarningLamp                                     Int?
+  ambientAirTemperature                                Float?
+  barometricAbsolutePressure                           Float?
+  barometricPressure                                   Float?
+  batteryPotentialPowerInput                           Float?
+  brakeSwitch                                          Int?
+  calculatedAmbientAirTemperature                      Float?
+  clutchSwitch                                         Int?
+  compassBearing                                       Float?
+  cruiseControlActive                                  Int?
+  cruiseControlEnableSwitch                            Int?
+  cruiseControlPauseSwitch                             Int?
+  day                                                  Float?
+  disengageDrivelineRequest                            Int?
+  drivelineRetarderOverheatIndicator                   Int?
+  ecuSerialNumber                                      Int?
+  engineActualIgnitionTiming                           Float?
+  engineAirFilter1DifferentialPressure                 Float?
+  engineAirFilterRestrictionLampData                   Int?
+  engineAirIntakePressure                              Int?
+  engineAirIntakeTemperature                           Int?
+  engineAmberWarningLampData                           Int?
+  engineCoolantFilterDifferentialPressure              Float?
+  engineCoolantLevel                                   Float?
+  engineCoolantLevelLowLampData                        Int?
+  engineCoolantTemperature                             Int?
+  engineCoolantTemperatureHighLampData                 Int?
+  engineDieselParticulateFilterIntakePressure          Float?
+  engineExhaustGasOxygenSensorClosedLoopOperationBank1 Int?
+  engineExhaustGasOxygenSensorClosedLoopOperationBank2 Int?
+  engineExhaustGasTemperature                          Float?
+  engineFuelDeliveryPressure                           Int?
+  engineFuelFilterDegradation                          Int?
+  engineFuelFilterRestrictedLampData                   Int?
+  engineFuelRate                                       Float?
+  engineIntakeManifold1Pressure                        Int?
+  engineIntakeManifold1Temperature                     Int?
+  engineOilLevel                                       Float?
+  engineOilPressure                                    Float?
+  engineOilPressureLowLampData                         Int?
+  engineOilTemperature1                                Float?
+  engineOverrideControlMode                            Int?
+  enginePercentLoadAtCurrentSpeed                      Int?
+  engineProtectLampData                                Int?
+  engineRedStopLampData                                Int?
+  engineRequestedSpeedSpeedLimit                       Float?
+  engineRequestedSpeedControlConditions                Int?
+  engineRequestedTorqueHighResolution                  Float?
+  engineRequestedTorqueTorqueLimit                     Int?
+  engineSpeed                                          Float?
+  engineThrottleValve1Position                         Float?
+  engineTotalFuelUsed                                  Float?
+  engineTotalHoursOfOperation                          Float?
+  engineTotalRevolutions                               Int?
+  engineTripFuel                                       Float?
+  engineTurbochargerOilTemperature                     Float?
+  externalAccelerationDemand                           Int?
+  flashRedStopLamp                                     Int?
+  failureModeIdentifier                                Int?
+  flashAmberWarningLamp                                Int?
+  flashMalfunctionIndicatorLamp                        Int?
+  flashProtectLamp                                     Int?
+  fuelLevel1                                           Float?
+  highResolutionEngineFuelRate                         Float?
+  hours                                                Int?
+  hydraulicRetarderOilTemperature                      Int?
+  hydraulicRetarderPressure                            Int?
+  hydraulicTemperature                                 Int?
+  keyswitchBatteryPotential                            Float?
+  latitude                                             Float?
+  localHourOffset                                      Int?
+  localMinuteOffset                                    Int?
+  longTermFuelTrimBank1                                Float?
+  longTermFuelTrimBank2                                Float?
+  longitude                                            Float?
+  malfunctionIndicatorLamp                             Int?
+  minutes                                              Int?
+  month                                                Int?
+  nameOfWorkingSetMember                               Int?
+  navigationBasedVehicleSpeed                          Float?
+  networkServiceStatus1                                Int?
+  numberOfMembersInWorkingSet                          Int?
+  occurrenceCount                                      Int?
+  overrideControlModePriority                          Int?
+  parkBrakeReleaseInhibitRequest                       Int?
+  parkingBrakeSwitch                                   Int?
+  pitch                                                Float?
+  powerTakeoffOilTemperature                           Int?
+  powerTakeoffSpeed                                    Float?
+  protectLamp                                          Int?
+  redStopLamp                                          Int?
+  relativeHumidity                                     Float?
+  requestedPercentClutchSlip                           Float?
+  spnConversionMethod                                  Int?
+  seconds                                              Float?
+  serviceDelayCalendarTimeBased                        Int?
+  serviceDelayOperationalTimeBased                     Int?
+  serviceDistance                                      Int?
+  shortTermFuelTrimBank1                               Float?
+  shortTermFuelTrimBank2                               Float?
+  specificHumidity                                     Float?
+  suspectParameterNumber                               Int?
+  tsc1ControlPurpose                                   Int?
+  tsc1TransmissionRate                                 Int?
+  timeSinceLastService                                 Int?
+  totalEcuRunTime                                      Float?
+  totalPowerTakeoffHours                               Float?
+  transmissionCurrentGear                              Int?
+  transmissionCurrentRange                             Int?
+  transmissionGearShiftInhibitRequest                  Int?
+  transmissionOilTemperature                           Float?
+  transmissionOutputShaftSpeed                         Float?
+  transmissionReverseGearShiftInhibitRequest           Int?
+  transmissionTorqueConverterLockupDisableRequest      Int?
+  transmissionTorqueConverterLockupEngaged             Int?
+  transmissionTorqueConverterLockupinProcess           Int?
+  tripNumberOfHotShutdowns                             Int?
+  twoSpeedAxleSwitch                                   Int?
+  valveAssemblyLoadSensePressure                       Int?
+  valveAssemblySupplyPressure                          Int?
+  valveLoadSensePressure                               Int?
+  valvePilotPressure                                   Int?
+  vehicleBatteryVoltageLowLampData                     Int?
+  vehicleFuelLevelLowLampData                          Int?
+  vehicleIdentificationNumber                          Int?
+  waterInFuelIndicator                                 Int?
+  wheelBasedVehicleSpeed                               Float?
+  wirelessSignalStrength1                              Float?
+  xbrControlMode                                       Int?
+  xbrPriority                                          Int?
+  xbrEbiMode                                           Int?
+  year                                                 Int?
+  createdOn                                            DateTime? @default(now())
+  boat                                                 Boat      @relation(fields: [boatId], references: [id])
+  device                                               Device    @relation(fields: [deviceId], references: [id])
+  log                                                  Log       @relation(fields: [logId], references: [id])
+
+  @@index([boatId], name: "IX_IgnitionOffLog_BoatId")
+  @@index([deviceId], name: "IX_IgnitionOffLog_DeviceId")
+  @@index([logId], name: "IX_IgnitionOffLog_LogId")
+}
+
+model IgnitionOnLog {
+  id                                                   Int       @id @default(autoincrement())
+  boatId                                               Int
+  deviceId                                             Int
+  logId                                                Int
+  accelX                                               Float?
+  accelXyzMagnitude                                    Float?
+  accelY                                               Float?
+  accelZ                                               Float?
+  analogInput1                                         Float?
+  analogInput2                                         Float?
+  analogInput3                                         Float?
+  analogInput4                                         Float?
+  digitalInput1                                        Int?
+  digitalInput2                                        Int?
+  digitalInput3                                        Int?
+  digitalInput4                                        Int?
+  digitalOutput1                                       Int?
+  digitalOutput2                                       Int?
+  gpsAltitudeFt                                        Int?
+  gpsAltitudeM                                         Int?
+  gpsCourse                                            Float?
+  gpsDate                                              Float?
+  gpsLatitude                                          Float?
+  gpsLongitude                                         Float?
+  gpsMode                                              Int?
+  gpsModeStr                                           String?
+  gpsNumSatellites                                     Int?
+  gpsSpeedKmh                                          Float?
+  gpsSpeedMph                                          Float?
+  gpsTime                                              Int?
+  gpsUtc                                               BigInt?
+  gpsUtcDays                                           Int?
+  gpsUtcSec                                            Int?
+  gpsUtcStr                                            String?
+  gpsWarn                                              String?
+  gsmAccessTechnology                                  String?
+  gsmConnected                                         Int?
+  gsmRegStatus                                         String?
+  gsmSignalQualityBars                                 Int?
+  gsmSignalQualityDBm                                  Int?
+  gsmSignalQualityStr                                  String?
+  gsmSimStatus                                         String?
+  input1DutyCycle                                      Int?
+  input1Frequency                                      Float?
+  sysSerial                                            Int?
+  sysType                                              String?
+  sysVariant                                           Int?
+  tempC                                                Float?
+  tempF                                                Float?
+  acceleratorPedalPosition1                            Float?
+  actualEnginePercentTorque                            Int?
+  actualEnginePercentTorqueHighResolution              Float?
+  altitude                                             Float?
+  amberWarningLamp                                     Int?
+  ambientAirTemperature                                Float?
+  barometricAbsolutePressure                           Float?
+  barometricPressure                                   Float?
+  batteryPotentialPowerInput                           Float?
+  brakeSwitch                                          Int?
+  calculatedAmbientAirTemperature                      Float?
+  clutchSwitch                                         Int?
+  compassBearing                                       Float?
+  cruiseControlActive                                  Int?
+  cruiseControlEnableSwitch                            Int?
+  cruiseControlPauseSwitch                             Int?
+  day                                                  Float?
+  disengageDrivelineRequest                            Int?
+  drivelineRetarderOverheatIndicator                   Int?
+  ecuSerialNumber                                      Int?
+  engineActualIgnitionTiming                           Float?
+  engineAirFilter1DifferentialPressure                 Float?
+  engineAirFilterRestrictionLampData                   Int?
+  engineAirIntakePressure                              Int?
+  engineAirIntakeTemperature                           Int?
+  engineAmberWarningLampData                           Int?
+  engineCoolantFilterDifferentialPressure              Float?
+  engineCoolantLevel                                   Float?
+  engineCoolantLevelLowLampData                        Int?
+  engineCoolantTemperature                             Int?
+  engineCoolantTemperatureHighLampData                 Int?
+  engineDieselParticulateFilterIntakePressure          Float?
+  engineExhaustGasOxygenSensorClosedLoopOperationBank1 Int?
+  engineExhaustGasOxygenSensorClosedLoopOperationBank2 Int?
+  engineExhaustGasTemperature                          Float?
+  engineFuelDeliveryPressure                           Int?
+  engineFuelFilterDegradation                          Int?
+  engineFuelFilterRestrictedLampData                   Int?
+  engineFuelRate                                       Float?
+  engineIntakeManifold1Pressure                        Int?
+  engineIntakeManifold1Temperature                     Int?
+  engineOilLevel                                       Float?
+  engineOilPressure                                    Float?
+  engineOilPressureLowLampData                         Int?
+  engineOilTemperature1                                Float?
+  engineOverrideControlMode                            Int?
+  enginePercentLoadAtCurrentSpeed                      Int?
+  engineProtectLampData                                Int?
+  engineRedStopLampData                                Int?
+  engineRequestedSpeedSpeedLimit                       Float?
+  engineRequestedSpeedControlConditions                Int?
+  engineRequestedTorqueHighResolution                  Float?
+  engineRequestedTorqueTorqueLimit                     Int?
+  engineSpeed                                          Float?
+  engineThrottleValve1Position                         Float?
+  engineTotalFuelUsed                                  Float?
+  engineTotalHoursOfOperation                          Float?
+  engineTotalRevolutions                               Int?
+  engineTripFuel                                       Float?
+  engineTurbochargerOilTemperature                     Float?
+  externalAccelerationDemand                           Int?
+  flashRedStopLamp                                     Int?
+  failureModeIdentifier                                Int?
+  flashAmberWarningLamp                                Int?
+  flashMalfunctionIndicatorLamp                        Int?
+  flashProtectLamp                                     Int?
+  fuelLevel1                                           Float?
+  highResolutionEngineFuelRate                         Float?
+  hours                                                Int?
+  hydraulicRetarderOilTemperature                      Int?
+  hydraulicRetarderPressure                            Int?
+  hydraulicTemperature                                 Int?
+  keyswitchBatteryPotential                            Float?
+  latitude                                             Float?
+  localHourOffset                                      Int?
+  localMinuteOffset                                    Int?
+  longTermFuelTrimBank1                                Float?
+  longTermFuelTrimBank2                                Float?
+  longitude                                            Float?
+  malfunctionIndicatorLamp                             Int?
+  minutes                                              Int?
+  month                                                Int?
+  nameOfWorkingSetMember                               Int?
+  navigationBasedVehicleSpeed                          Float?
+  networkServiceStatus1                                Int?
+  numberOfMembersInWorkingSet                          Int?
+  occurrenceCount                                      Int?
+  overrideControlModePriority                          Int?
+  parkBrakeReleaseInhibitRequest                       Int?
+  parkingBrakeSwitch                                   Int?
+  pitch                                                Float?
+  powerTakeoffOilTemperature                           Int?
+  powerTakeoffSpeed                                    Float?
+  protectLamp                                          Int?
+  redStopLamp                                          Int?
+  relativeHumidity                                     Float?
+  requestedPercentClutchSlip                           Float?
+  spnConversionMethod                                  Int?
+  seconds                                              Float?
+  serviceDelayCalendarTimeBased                        Int?
+  serviceDelayOperationalTimeBased                     Int?
+  serviceDistance                                      Int?
+  shortTermFuelTrimBank1                               Float?
+  shortTermFuelTrimBank2                               Float?
+  specificHumidity                                     Float?
+  suspectParameterNumber                               Int?
+  tsc1ControlPurpose                                   Int?
+  tsc1TransmissionRate                                 Int?
+  timeSinceLastService                                 Int?
+  totalEcuRunTime                                      Float?
+  totalPowerTakeoffHours                               Float?
+  transmissionCurrentGear                              Int?
+  transmissionCurrentRange                             Int?
+  transmissionGearShiftInhibitRequest                  Int?
+  transmissionOilTemperature                           Float?
+  transmissionOutputShaftSpeed                         Float?
+  transmissionReverseGearShiftInhibitRequest           Int?
+  transmissionTorqueConverterLockupDisableRequest      Int?
+  transmissionTorqueConverterLockupEngaged             Int?
+  transmissionTorqueConverterLockupinProcess           Int?
+  tripNumberOfHotShutdowns                             Int?
+  twoSpeedAxleSwitch                                   Int?
+  valveAssemblyLoadSensePressure                       Int?
+  valveAssemblySupplyPressure                          Int?
+  valveLoadSensePressure                               Int?
+  valvePilotPressure                                   Int?
+  vehicleBatteryVoltageLowLampData                     Int?
+  vehicleFuelLevelLowLampData                          Int?
+  vehicleIdentificationNumber                          Int?
+  waterInFuelIndicator                                 Int?
+  wheelBasedVehicleSpeed                               Float?
+  wirelessSignalStrength1                              Float?
+  xbrControlMode                                       Int?
+  xbrPriority                                          Int?
+  xbrEbiMode                                           Int?
+  year                                                 Int?
+  createdOn                                            DateTime? @default(now())
+  boat                                                 Boat      @relation(fields: [boatId], references: [id])
+  device                                               Device    @relation(fields: [deviceId], references: [id])
+  log                                                  Log       @relation(fields: [logId], references: [id])
+
+  @@index([boatId], name: "IX_IgnitonOnLog_BoatId")
+  @@index([deviceId], name: "IX_IgnitonOnLog_DeviceId")
+  @@index([logId], name: "IX_IgnitonOnLog_LogId")
+}
+
+model Log {
+  id             Int              @id @default(autoincrement())
+  deviceId       Int
+  boatId         Int
+  log            String           @unique
+  extension      String
+  size           Int
+  createdOn      DateTime         @default(now())
+  logStartedOn   DateTime
+  logEndedOn     DateTime
+  boat           Boat             @relation(fields: [boatId], references: [id])
+  device         Device           @relation(fields: [deviceId], references: [id])
+  alarmLog       AlarmLog[]
+  ignitionOffLog IgnitionOffLog[]
+  ignitionOnLog  IgnitionOnLog[]
+  sleepLog       SleepLog[]
+
+  @@index([boatId], name: "IX_Log_boatId")
+  @@index([deviceId], name: "IX_Log_deviceId")
+}
+
+model SleepLog {
+  id                   Int       @id @default(autoincrement())
+  boatId               Int
+  deviceId             Int
+  logId                Int
+  accelX               Float?
+  accelXyzMagnitude    Float?
+  accelY               Float?
+  accelZ               Float?
+  analogInput1         Float?
+  analogInput2         Float?
+  analogInput3         Float?
+  analogInput4         Float?
+  digitalInput1        Int?
+  digitalInput2        Int?
+  digitalInput3        Int?
+  digitalInput4        Int?
+  digitalOutput1       Int?
+  digitalOutput2       Int?
+  gpsAltitudeFt        Int?
+  gpsAltitudeM         Int?
+  gpsCourse            Float?
+  gpsDate              Float?
+  gpsLatitude          Float?
+  gpsLongitude         Float?
+  gpsMode              Int?
+  gpsModeStr           String?
+  gpsNumSatellites     Int?
+  gpsSpeedKmh          Float?
+  gpsSpeedMph          Float?
+  gpsTime              Int?
+  gpsUtc               BigInt?
+  gpsUtcDays           Int?
+  gpsUtcSec            Int?
+  gpsUtcStr            String?
+  gpsWarn              String?
+  gsmAccessTechnology  String?
+  gsmConnected         Int?
+  gsmRegStatus         String?
+  gsmSignalQualityBars Int?
+  gsmSignalQualityDBm  Int?
+  gsmSignalQualityStr  String?
+  gsmSimStatus         String?
+  input1DutyCycle      Int?
+  input1Frequency      Float?
+  sysSerial            BigInt?
+  sysType              String?
+  sysVariant           Int?
+  tempC                Float?
+  tempF                Float?
+  createdOn            DateTime? @default(now())
+  boat                 Boat      @relation(fields: [boatId], references: [id])
+  device               Device    @relation(fields: [deviceId], references: [id])
+  log                  Log       @relation(fields: [logId], references: [id])
+
+  @@index([boatId], name: "IX_SleepLogs_BoatId")
+  @@index([deviceId], name: "IX_SleepLogs_DeviceId")
+  @@index([logId], name: "IX_SleepLogs_LogId")
+}
