@@ -12,6 +12,13 @@ import emailRouter from './email-router';
 
 const router = Router();
 
+
+
+/***
+ * fix handlwe  all  route  
+ * setup  the  language  
+ * 
+ */
 router.use('/user', userRouter);
 router.use('/device', deviceRouter);
 router.use('/device-telemetry', deviceTelemetryRouter);
@@ -21,6 +28,11 @@ router.use('/dealership', dealershipRouter);
 router.use('/boat-guest', boatGuestRouter);
 router.use('/transfer-boat', transferBoatRouter);
 router.use('/email', emailRouter);
+
+
+/**
+ * 
+ */
 
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');

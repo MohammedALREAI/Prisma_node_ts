@@ -1,4 +1,5 @@
-generator client {
+ 
+ generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["interactiveTransactions"]
 
@@ -929,3 +930,4 @@ model SleepLog {
   @@index([deviceId], name: "IX_SleepLogs_DeviceId")
   @@index([logId], name: "IX_SleepLogs_LogId")
 }
+
