@@ -1,7 +1,14 @@
-import { updateBoatName,addBoatGuest,removeBoatGuest} from "./Device";
 
-export  default  {
+export  {
+    getDevices,
+    deleteDevice,
+    createDevice,
+    updateDeviceBoat,
+    updateDeviceSim,
     updateBoatName,
     addBoatGuest,
-    removeBoatGuest
-}
+    removeBoatGuest,
+    getTelemetry,
+    getDeviceById
+   
+}from'./Device'

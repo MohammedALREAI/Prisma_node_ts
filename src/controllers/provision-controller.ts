@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import * as ProvisionService from '../services/provision-service';
+import  ProvisionService from '../services/provision-service';
 import { RawProvisionedComponent } from '../@types';
 
 export const provisionComponentList = async (

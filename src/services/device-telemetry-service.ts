@@ -1,6 +1,6 @@
 import createError from 'http-errors';
 import prisma from '../db/prisma';
-import logger from '../logger';
+import logger from '../lib/logger';
 
 
 

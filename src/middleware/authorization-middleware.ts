@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '../db/prisma';
 import createError from 'http-errors';
-import logger from '../logger';
+import logger from '../lib/logger';
 
 const authorizationMiddleware = () => {
   return async (req: Request, _res: Response, next: NextFunction) => {

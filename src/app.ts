@@ -14,25 +14,29 @@ import createHttpError, { HttpError } from 'http-errors';
 import { urlencoded, json } from 'body-parser';
 
 import routers from './routers';
-import logger from './logger';
+import {Logger} from './lib/logger/index';
 import { clientHandler, deviceHandler } from './handlers';
 
 const app = express();
 
+const logger = new Logger();
+
+
+
 ///  hqandle  with     multi  language  /
-i18next.use(middleware.LanguageDetector).init({
-  preload: ['en', 'ar',],
- defaultNS:"en",
- load:'languageOnly',
- saveMissing: true,
- debug: true,
- backend: {
-  loadPath: __dirname + '/locales/{{lng}}/{{ns}}.json',
+// i18next.use(middleware.LanguageDetector).init({
+//   preload: ['en', 'ar',],
+//  defaultNS:"en",
+//  load:'languageOnly',
+//  saveMissing: true,
+//  debug: true,
+//  backend: {
+//   loadPath: __dirname + '/locales/{{lng}}/{{ns}}.json',
   
-},
-nsSeparator: '#||#',
-keySeparator: '#|#'
-})
+// },
+// nsSeparator: '#||#',
+// keySeparator: '#|#'
+// })
 
 
 
@@ -42,17 +46,20 @@ app.use(cors());
 app.use(compression());
 app.use(helmet());
 
-app.get('/health-check/ping', (_req: Request, res: Response) => {
-  res.send({
-    status: 'online'
-  });
-});
+app.use(logger.getRequestLogger());
+
+
+
+
+app.get('/health', (req, res) => res.json({ status: true, message: 'Health OK!' }));
+
 
 app.use(routers);
 
 /**
  * Handles 404 requests
  */
+
 app.use((req: Request, res: Response, next: NextFunction) => {
   const error = createHttpError(404, 'Page not found');
 
@@ -76,7 +83,16 @@ app.use(
 
 
 
-app.use('/locales', express.static('locales'));
+// app.use('/locales', express.static('locales'));
+
+
+/***
+ * 
+ * cheack  if  the  server  is  working  fine  or  not  
+ * 
+ */
+
+app.use(logger.getRequestErrorLogger());
 
   
 const server = new http.Server(app);
@@ -84,7 +100,7 @@ const server = new http.Server(app);
 const port = process.env.PORT || 8000;
 
 server.listen(port, () => {
-  logger.info(`Express application is running on port ${port}.`);
+  // logger.info(`Express application is running on port ${port}.`);
 });
 
 const io = new socketIO.Server(server, { transports: ['websocket'] });

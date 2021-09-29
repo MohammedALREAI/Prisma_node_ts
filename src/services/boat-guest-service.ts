@@ -1,6 +1,6 @@
 import prisma from '../db/prisma';
 import {} from '../@types';
-import logger from '../logger';
+import logger from '../lib/logger';
 import UserService from '../services/user-service';
 import  UserRoleService from '../services/user-role-service';
 import  {GuestService} from '../services/guest-service';

@@ -1,7 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
-import * as UserService from '../services/user-service';
+import  UserService from '../services/user-service';
 import _ from 'lodash';
-import logger from '../logger';
+import logger from '../lib/logger';
+
+
+interface UpdateUserEmailBody {
+  email: string;
+}
+
+interface UpdateUserNameBody {
+  name: string;
+}
+
+/**
+ * @class UserController
+ */
+export  default  class  UserController{
+
 
 /**
  * @function getUser
@@ -10,7 +25,7 @@ import logger from '../logger';
  * @param res
  * @param next
  */
-export const getUser = async (
+static getUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -33,7 +48,7 @@ export const getUser = async (
  * @param res
  * @param next
  */
-export const getUserFleet = async (
+static getUserFleet = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -47,9 +62,6 @@ export const getUserFleet = async (
   }
 };
 
-interface UpdateUserNameBody {
-  name: string;
-}
 
 /**
  * @function updateUserName
@@ -58,7 +70,7 @@ interface UpdateUserNameBody {
  * @param res
  * @param next
  */
-export const updateUserName = async (
+static updateUserName = async (
   req: Request<{}, {}, UpdateUserNameBody>,
   res: Response,
   next: NextFunction
@@ -75,9 +87,6 @@ export const updateUserName = async (
   }
 };
 
-interface UpdateUserEmailBody {
-  email: string;
-}
 
 /**
  * @function updateUserEmail
@@ -86,7 +95,7 @@ interface UpdateUserEmailBody {
  * @param res
  * @param next
  */
-export const updateUserEmail = async (
+static updateUserEmail = async (
   req: Request<{}, {}, UpdateUserEmailBody>,
   res: Response,
   next: NextFunction
@@ -110,7 +119,7 @@ export const updateUserEmail = async (
  * @param res
  * @param next
  */
-export const verifyUser = async (
+static verifyUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -131,7 +140,7 @@ export const verifyUser = async (
  * @param res
  * @param next
  */
-export const createFirebaseUser = async (
+static createFirebaseUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -144,4 +153,4 @@ export const createFirebaseUser = async (
     logger.error(err);
     next(err);
   }
-};
+}}

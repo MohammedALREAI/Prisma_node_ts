@@ -1,6 +1,6 @@
 import {  Prisma } from '@prisma/client'
 import createError from 'http-errors';
-import logger from '../logger';
+import logger from '../lib/logger';
 import prisma from '../db/prisma';
 
 /**

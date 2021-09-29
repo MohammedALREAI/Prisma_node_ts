@@ -1,8 +1,8 @@
-import express from 'express';
+import Router from 'express';
 import * as DealershipController from '../controllers/dealership-controller';
 import { authenticationMiddleware as authenticate } from '../middleware';
 
-const router = express.Router();
+const router = Router();
 
 router.get(
   '/get-all-dealerships',

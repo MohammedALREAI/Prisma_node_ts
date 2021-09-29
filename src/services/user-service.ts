@@ -2,7 +2,7 @@ import firebase from '../db/firebase';
 import prisma from '../db/prisma';
 import generateRandomToken from '../helpers/generateRandomToken';
 import {} from '../@types';
-import logger from '../logger';
+import logger from '../lib/logger';
 
 import createError from 'http-errors';
 
@@ -164,6 +164,9 @@ static createUser = async (userData) => {
     throw err;
   }
 };
+
+
+
 
 static createFirebaseUser = async userData => {
   try {

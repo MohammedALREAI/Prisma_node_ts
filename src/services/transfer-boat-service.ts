@@ -1,6 +1,6 @@
 import createError from 'http-errors';
 import prisma from '../db/prisma';
-import logger from '../logger';
+import logger from '../lib/logger';
 import { generateRandomToken } from '../helpers';
 
 import  UserService from '../services/user-service';
@@ -32,7 +32,7 @@ export  default class TransferBoatService{
  * 
  */
 
-static transferBoatFromApp = async (hin, email, dealershipName) => {
+static transferBoatFromApp = async (hin:string, email:string, dealershipName) => {
   try {
     await prisma.$transaction(async prisma => {
       const boat = await BoatService.getBoatByHin(hin);

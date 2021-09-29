@@ -3,7 +3,7 @@ import createError from 'http-errors';
 import P from 'pino';
 
 import prisma from '../db/prisma';
-import logger from '../logger';
+import logger from '../lib/logger';
 
 /**
  * @class DeviceService

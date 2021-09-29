@@ -1,5 +1,5 @@
 {
-  "name": "centurion",
+  "name": "centurion_Test",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -48,6 +48,7 @@
     "express": "^4.17.1",
     "express-validator": "^6.12.1",
     "express-validators": "^1.0.4",
+    "express-winston": "^4.2.0",
     "firebase": "^8.2.9",
     "firebase-admin": "^9.4.2",
     "helmet": "^4.6.0",
@@ -66,7 +67,8 @@
     "swagger-jsdoc": "^6.1.0",
     "swagger-ui-express": "^4.1.6",
     "tedious": "^11.4.0",
-    "twilio": "^3.54.2"
+    "twilio": "^3.54.2",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@types/ajv": "^1.0.0",

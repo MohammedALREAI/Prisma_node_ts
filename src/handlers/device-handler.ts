@@ -2,7 +2,7 @@ import { Namespace, Socket, Server } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
 import jwt from 'jsonwebtoken';
 import sanitizer from './sanitizer';
-import logger from '../logger';
+import logger from '../lib/logger';
 import prisma from '../db/prisma';
 
 

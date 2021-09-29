@@ -1,4 +1,4 @@
-import express from 'express';
+import {Router} from 'express';
 
 import userRouter from './user-router';
 import deviceRouter from './device-router';
@@ -10,7 +10,7 @@ import boatGuestRouter from './boat-guest-router';
 import transferBoatRouter from './transfer-boat-router';
 import emailRouter from './email-router';
 
-const router = express.Router();
+const router = Router();
 
 router.use('/user', userRouter);
 router.use('/device', deviceRouter);

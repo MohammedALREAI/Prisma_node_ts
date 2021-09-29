@@ -1,5 +1,5 @@
 import { Namespace, Socket, Server } from 'socket.io';
-import logger from '../logger';
+import logger from '../lib/logger';
 
 const clientHandler = (client: Namespace, io: Server) => {
   client.on('connection', (socket: Socket) => {

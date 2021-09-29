@@ -9,7 +9,7 @@ import {
 import excelSerialDateToJsDate from '../helpers/excelSerialDateToJsDate';
 import _ from 'lodash';
 import knex from '../db/knex';
-import logger from '../logger';
+import logger from '../lib/logger';
 import createError from 'http-errors';
 import { ProvisionedDevice } from '@prisma/client';
 

@@ -1,5 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import * as TransferBoatService from '../services/transfer-boat-service';
+import TransferBoatService from '../services/transfer-boat-service';
+
+
+export  default class  TransferBoatFromController{
+  
+
 
 /**
  * @function transferBoat
@@ -7,7 +12,7 @@ import * as TransferBoatService from '../services/transfer-boat-service';
  * @param res
  * @param next
  */
-export const transferBoatFromApp = async (
+static transferBoatFromApp = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -33,7 +38,7 @@ export const transferBoatFromApp = async (
  * @param res
  * @param next
  */
-export const transferBoatFromDealersCircle = async (
+static transferBoatFromDealersCircle = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -49,4 +54,5 @@ export const transferBoatFromDealersCircle = async (
   } catch (err) {
     next(err);
   }
-};
+}
+}

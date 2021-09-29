@@ -1,5 +1,5 @@
 import { createFirebaseUser } from '../helpers';
-import logger from '../logger';
+import logger from '../lib/logger';
 
 const main = async () => {
   const user = await createFirebaseUser(

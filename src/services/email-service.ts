@@ -1,4 +1,4 @@
-import logger from '../logger';
+import logger from '../lib/logger';
 import axios from 'axios';
 import sgMail from '@sendgrid/mail';
 import { ClientSession } from 'mongoose';

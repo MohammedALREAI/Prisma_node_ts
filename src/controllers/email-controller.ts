@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import * as EmailService from '../services/email-service';
+import  EmailService from '../services/email-service';
 
 /**
  * @function sendTechEmail
@@ -14,7 +14,7 @@ export const sendTechEmail = async (
 ) => {
   const { fullName, email, subject, message } = req.body;
   try {
-    await EmailService.sendTechEmail(fullName, email, subject, message);
+    await EmailService.sendTechEmail({fullName, email, subject, message});
     res.send('Tech support email was sent');
   } catch (err) {
     next(err);

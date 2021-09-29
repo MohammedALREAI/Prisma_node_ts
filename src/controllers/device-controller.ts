@@ -128,4 +128,4 @@ static deleteDevice = async (
   } catch (err) {
     next(err);
   }
-};
+}}

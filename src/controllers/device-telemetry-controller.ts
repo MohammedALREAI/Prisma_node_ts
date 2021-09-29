@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as DeviceTelemetryService from '../services/device-telemetry-service';
 import _ from 'lodash';
-import logger from '../logger';
+import logger from '../lib/logger';
 
 /**
  * @function getTelemetry
@@ -24,3 +24,7 @@ export const getTelemetry = async (
     next(err);
   }
 };
+
+
+
+

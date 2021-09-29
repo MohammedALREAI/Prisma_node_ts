@@ -1,9 +1,10 @@
 import express from 'express';
-import * as UserController from '../controllers/user-controller';
+import  UserController from '../controllers/user-controller';
 import { authenticationMiddleware as authenticate } from '../middleware';
-import { body } from 'express-validator';
+import { createFirebaseUser, getUser, getUserFleet, updateUserEmail, updateUserName, verifyUser } from '../middleware/express-validator/User/index';
 
 const router = express.Router();
+// router.get('/test', UserController.getUser);
 
 /**
  * @swagger
@@ -37,7 +38,7 @@ const router = express.Router();
  *                  schema:
  *                     type: object
  */
-router.get('/:id', authenticate, UserController.getUser);
+router.get('/:id', authenticate,getUser, UserController.getUser);
 
 /**
  * @swagger
@@ -62,31 +63,19 @@ router.get('/:id', authenticate, UserController.getUser);
  *                  schema:
  *                     type: object
  */
-router.get('/fleet/:uid', authenticate, UserController.getUserFleet);
+router.get('/fleet/:uid', authenticate,getUserFleet, UserController.getUserFleet);
 
-//do not need to authenticate this one
-router.post('/verify-user/:token', UserController.verifyUser);
+// //do not need to authenticate this one
+router.post('/verify-user/:token',verifyUser, UserController.verifyUser);
 
-//do not need to authenticate this one
+// //do not need to authenticate this one
 router.post(
-  '/create-firebase-user',
-  [
-    body('email').isEmail(),
-    body('name', 'Name is required')
-      .not()
-      .isEmpty(),
-    body('password', 'Password is required')
-      .not()
-      .isEmpty(),
-    body('uid', 'UID is required')
-      .not()
-      .isEmpty()
-  ],
+  '/create-firebase-user',createFirebaseUser,
   UserController.createFirebaseUser
 );
 
-router.patch('/edit/name', authenticate, UserController.updateUserName);
+router.patch('/edit/name', authenticate,updateUserName, UserController.updateUserName);
 
-router.patch('/edit/email', authenticate, UserController.updateUserEmail);
+router.patch('/edit/email', authenticate, updateUserEmail,UserController.updateUserEmail);
 
 export default router;

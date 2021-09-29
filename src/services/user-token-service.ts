@@ -1,7 +1,7 @@
 import prisma from '../db/prisma';
 import generateRandomToken from '../helpers/generateRandomToken';
 import {} from '../@types';
-import logger from '../logger';
+import logger from '../lib/logger';
 
 export const createUserToken = async (user) => {
   try {
